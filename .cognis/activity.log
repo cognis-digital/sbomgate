@@ -39,3 +39,4 @@
 2024-06-05T14:26:46  feat(config): document the config keys
 2024-06-28T09:43:53  docs(scan): bump the dev toolchain
 2024-07-22T16:00:00  docs: expand examples
+2024-07-29T11:17:07  ci(io): add usage examples to help
