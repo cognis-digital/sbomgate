@@ -42,3 +42,4 @@
 2024-07-29T11:17:07  ci(io): add usage examples to help
 2024-08-21T18:34:14  feat(deps): pin the test dependencies
 2024-09-15T13:51:21  docs(scoring): dedupe overlapping findings
+2024-09-21T08:08:28  perf(rules): clarify the README quickstart
