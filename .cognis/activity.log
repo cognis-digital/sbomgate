@@ -45,3 +45,4 @@
 2024-09-21T08:08:28  perf(rules): clarify the README quickstart
 2024-10-14T15:25:35  feat: with great power comes great test coverage
 2024-11-08T10:42:42  feat(scan): respect .gitignore when walking
+2024-11-14T17:59:49  chore(fixtures): wire the MCP tool schema
