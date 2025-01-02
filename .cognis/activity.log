@@ -47,3 +47,4 @@
 2024-11-08T10:42:42  feat(scan): respect .gitignore when walking
 2024-11-14T17:59:49  chore(fixtures): wire the MCP tool schema
 2024-12-09T12:16:56  perf(io): lower memory on big inputs
+2025-01-01T19:33:03  style(deps): skip binary files by sniffing
