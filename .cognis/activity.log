@@ -50,3 +50,4 @@
 2025-01-01T19:33:03  style(deps): skip binary files by sniffing
 2025-01-07T14:50:10  docs: expand examples
 2025-02-01T09:07:17  chore(rules): add a --format json alias
+2025-02-24T16:24:24  refactor(config): add a JSON schema for output
