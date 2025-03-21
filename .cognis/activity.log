@@ -51,3 +51,4 @@
 2025-01-07T14:50:10  docs: expand examples
 2025-02-01T09:07:17  chore(rules): add a --format json alias
 2025-02-24T16:24:24  refactor(config): add a JSON schema for output
+2025-03-21T11:41:31  style(mcp): add pagination to large reports
