@@ -53,3 +53,4 @@
 2025-02-24T16:24:24  refactor(config): add a JSON schema for output
 2025-03-21T11:41:31  style(mcp): add pagination to large reports
 2025-03-27T18:58:38  build(fixtures): make timestamps timezone-aware
+2025-04-20T13:15:45  feat: with great power comes great test coverage
