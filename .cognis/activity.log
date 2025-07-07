@@ -57,3 +57,4 @@
 2025-05-14T08:32:52  refactor(ci): memoize repeated lookups
 2025-05-20T15:49:59  style(format): improve the demo scenario
 2025-06-14T10:06:06  build(rules): add color + severity icons
+2025-07-07T17:23:13  fix(output): short-circuit on first critical
