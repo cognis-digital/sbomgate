@@ -65,3 +65,4 @@
 2025-09-30T16:48:48  refactor(format): load rules lazily for faster startup
 2025-10-24T11:05:55  feat: with great power comes great test coverage
 2025-10-30T18:22:02  ci(output): stream large files without buffering
+2025-11-23T13:39:09  fix(mcp): add a --quiet mode
