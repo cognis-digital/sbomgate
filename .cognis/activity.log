@@ -67,3 +67,4 @@
 2025-10-30T18:22:02  ci(output): stream large files without buffering
 2025-11-23T13:39:09  fix(mcp): add a --quiet mode
 2025-12-18T08:56:16  docs(cache): fix off-by-one in line numbers
+2025-12-23T15:13:23  test(engine): add a fast path for the common case
