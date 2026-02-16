@@ -70,3 +70,4 @@
 2025-12-23T15:13:23  test(engine): add a fast path for the common case
 2026-01-16T10:30:30  docs: expand examples
 2026-02-10T17:47:37  fix(detect): handle CRLF line endings
+2026-02-16T12:04:44  docs(cli): reduce false positives on edge cases
