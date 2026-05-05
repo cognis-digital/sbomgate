@@ -74,3 +74,4 @@
 2026-03-12T19:21:51  perf(output): tune severity weights
 2026-04-05T14:38:58  ci(docs): trim whitespace in parsed fields
 2026-04-29T09:55:05  feat: with great power comes great test coverage
+2026-05-05T16:12:12  docs(engine): add a regression fixture
