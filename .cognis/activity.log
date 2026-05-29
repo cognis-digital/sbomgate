@@ -75,3 +75,4 @@
 2026-04-05T14:38:58  ci(docs): trim whitespace in parsed fields
 2026-04-29T09:55:05  feat: with great power comes great test coverage
 2026-05-05T16:12:12  docs(engine): add a regression fixture
+2026-05-29T11:29:19  perf(tests): add type hints to the public API
