@@ -1,0 +1,19 @@
+[
+  {
+    "package": "requests",
+    "new": true,
+    "severity": "critical",
+    "cve": "CVE-2026-1234"
+  },
+  {
+    "package": "left-pad",
+    "maintainer_changed": true,
+    "new_owner": "unknown"
+  },
+  {
+    "package": "libfoo",
+    "license_changed": true,
+    "from": "MIT",
+    "to": "AGPL-3.0"
+  }
+]

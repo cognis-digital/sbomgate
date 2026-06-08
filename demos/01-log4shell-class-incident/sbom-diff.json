@@ -1,0 +1,22 @@
+[
+  {
+    "package": "log4j-core",
+    "new": true,
+    "severity": "critical",
+    "cve": "CVE-2021-44228",
+    "old_version": "absent",
+    "new_version": "2.14.1"
+  },
+  {
+    "package": "jackson-databind",
+    "new": true,
+    "severity": "high",
+    "cve": "CVE-2020-36518"
+  },
+  {
+    "package": "snakeyaml",
+    "new": true,
+    "severity": "high",
+    "cve": "CVE-2022-1471"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "package": "some-utility",
+    "license_changed": true,
+    "from": "MIT",
+    "to": "AGPL-3.0"
+  },
+  {
+    "package": "another-lib",
+    "license_changed": true,
+    "from": "Apache-2.0",
+    "to": "BUSL-1.1"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "package": "event-stream",
+    "maintainer_changed": true,
+    "new_owner": "unknown_account_a"
+  },
+  {
+    "package": "ua-parser-js",
+    "maintainer_changed": true,
+    "new_owner": "new-maintainer-12"
+  },
+  {
+    "package": "colors",
+    "maintainer_changed": true,
+    "new_owner": "original_author_protest"
+  }
+]
