@@ -1,0 +1,28 @@
+{
+  "advisories": [
+    {
+      "id": "GHSA-req-2015",
+      "name": "requests",
+      "ecosystem": "pypi",
+      "severity": "high",
+      "affected": ["<2.20.0"],
+      "summary": "Credential leak on cross-origin redirect in old requests releases"
+    },
+    {
+      "id": "GHSA-shady-0001",
+      "name": "shady-logger",
+      "ecosystem": "pypi",
+      "severity": "critical",
+      "affected": ["<1.0.0"],
+      "summary": "Remote code execution via log format string injection"
+    },
+    {
+      "id": "GHSA-url3-2024",
+      "name": "urllib3",
+      "ecosystem": "pypi",
+      "severity": "medium",
+      "affected": ["<2.2.2"],
+      "summary": "Proxy-Authorization header not stripped on cross-host redirect"
+    }
+  ]
+}

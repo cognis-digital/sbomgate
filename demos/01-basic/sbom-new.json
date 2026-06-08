@@ -1,0 +1,34 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "components": [
+    {
+      "type": "library",
+      "name": "requests",
+      "version": "2.5.0",
+      "purl": "pkg:pypi/requests@2.5.0",
+      "publisher": "Python Software Foundation"
+    },
+    {
+      "type": "library",
+      "name": "urllib3",
+      "version": "2.2.2",
+      "purl": "pkg:pypi/urllib3@2.2.2",
+      "publisher": "urllib3 team"
+    },
+    {
+      "type": "library",
+      "name": "leftpad-utils",
+      "version": "1.4.0",
+      "purl": "pkg:pypi/leftpad-utils@1.4.0",
+      "publisher": "unknown-dev-9981"
+    },
+    {
+      "type": "library",
+      "name": "shady-logger",
+      "version": "0.0.7",
+      "purl": "pkg:pypi/shady-logger@0.0.7",
+      "publisher": "freebie-logs"
+    }
+  ]
+}
