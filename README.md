@@ -36,7 +36,12 @@ Continuous SBOM diff & vulnerability watch with maintainer-change tracking — w
 <a name="features"></a>
 ## Features
 
-- ✅ Scan
+- ✅ Parse Sbom
+- ✅ Load Sbom
+- ✅ Diff Sboms
+- ✅ Load Advisories
+- ✅ Match Vulnerabilities
+- ✅ Gate
 - ✅ Runs on Linux/macOS/Windows · Docker · devcontainer
 - ✅ Ports in Python, JavaScript, Go, and Rust (`ports/`)
 
