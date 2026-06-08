@@ -1,0 +1,10 @@
+{
+  "name": "@cognis/sbomgate",
+  "version": "0.2.0",
+  "description": "JavaScript port of sbomgate (Cognis Neural Suite)",
+  "bin": {
+    "sbomgate": "index.js"
+  },
+  "license": "LicenseRef-COCL-1.0",
+  "type": "module"
+}
