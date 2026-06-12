@@ -16,7 +16,7 @@
 </div>
 
 ```bash
-pip install cognis-sbomgate
+pip install "git+https://github.com/cognis-digital/sbomgate.git"
 sbomgate scan .            # → prioritized findings in seconds
 ```
 
@@ -51,7 +51,7 @@ Continuous SBOM diff & vulnerability watch with maintainer-change tracking — w
 ## Quick start
 
 ```bash
-pip install cognis-sbomgate
+pip install "git+https://github.com/cognis-digital/sbomgate.git"
 sbomgate --version
 sbomgate scan .                       # scan current project
 sbomgate scan . --format json         # machine-readable
