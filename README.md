@@ -20,6 +20,12 @@ pip install "git+https://github.com/cognis-digital/sbomgate.git"
 sbomgate scan .            # → prioritized findings in seconds
 ```
 
+<!-- cognis:layman:start -->
+## What is this?
+
+sbomgate is a command-line tool that watches the list of software packages your project depends on and alerts you when something changes or looks risky. It compares two snapshots of your dependency list (called SBOMs — Software Bills of Materials), spots additions, removals, version updates, and suspicious maintainer changes that can signal a supply-chain attack. It also checks your packages against a list of known security vulnerabilities and can stop your automated build pipeline from shipping if a serious problem is found. It is aimed at developers and security teams who want a lightweight, no-account-required way to stay on top of what is in their software.
+<!-- cognis:layman:end -->
+
 ## Contents
 
 - [Why sbomgate?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
@@ -48,6 +54,42 @@ Continuous SBOM diff & vulnerability watch with maintainer-change tracking — w
 <div align="right"><a href="#top">↑ back to top</a></div>
 
 <a name="quick-start"></a>
+<!-- cognis:install:start -->
+## Install
+
+`sbomgate` is source-available (not published to PyPI) — every method below installs
+straight from GitHub. Pick whichever you prefer; the one-line scripts auto-detect
+the best tool available on your machine.
+
+**One-liner (Linux / macOS):**
+```sh
+curl -fsSL https://raw.githubusercontent.com/cognis-digital/sbomgate/HEAD/install.sh | sh
+```
+
+**One-liner (Windows PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/cognis-digital/sbomgate/HEAD/install.ps1 | iex
+```
+
+**Or install manually — any one of:**
+```sh
+pipx install "git+https://github.com/cognis-digital/sbomgate.git"     # isolated (recommended)
+uv tool install "git+https://github.com/cognis-digital/sbomgate.git"  # uv
+pip install "git+https://github.com/cognis-digital/sbomgate.git"      # pip
+```
+
+**From source:**
+```sh
+git clone https://github.com/cognis-digital/sbomgate.git
+cd sbomgate && pip install .
+```
+
+Then run:
+```sh
+sbomgate --help
+```
+<!-- cognis:install:end -->
+
 ## Quick start
 
 ```bash
