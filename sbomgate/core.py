@@ -162,9 +162,29 @@ def parse_sbom(data: Any) -> List[Component]:
 
 
 def load_sbom(path: str) -> List[Component]:
-    """Read a JSON SBOM file from disk and parse it."""
-    with open(path, "r", encoding="utf-8") as fh:
-        data = json.load(fh)
+    """Read a JSON SBOM file from disk and parse it.
+
+    Raises:
+        FileNotFoundError: if *path* does not exist.
+        IsADirectoryError: if *path* is a directory.
+        PermissionError: if the file cannot be read.
+        UnicodeDecodeError: re-raised with filename context if the file is not UTF-8.
+        ValueError: if the JSON is malformed or the SBOM structure is unrecognised.
+    """
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except IsADirectoryError:
+        raise IsADirectoryError(f"expected a file, got a directory: {path}")
+    except PermissionError:
+        raise PermissionError(f"permission denied reading: {path}")
+    except UnicodeDecodeError as exc:
+        raise UnicodeDecodeError(
+            exc.encoding, exc.object, exc.start, exc.end,
+            f"file is not valid UTF-8: {path}",
+        )
+    except json.JSONDecodeError as exc:
+        raise json.JSONDecodeError(f"invalid JSON in {path}: {exc.msg}", exc.doc, exc.pos)
     return parse_sbom(data)
 
 
@@ -239,9 +259,29 @@ def load_advisories(path: str) -> List[Dict[str, Any]]:
       {"id": "GHSA-xxxx", "name": "requests", "ecosystem": "pypi",
        "severity": "high", "affected": ["<2.31.0", "==2.5.0"],
        "summary": "..."}
+
+    Raises:
+        FileNotFoundError: if *path* does not exist.
+        IsADirectoryError: if *path* is a directory.
+        PermissionError: if the file cannot be read.
+        ValueError: if the JSON is malformed or the feed structure is unrecognised.
     """
-    with open(path, "r", encoding="utf-8") as fh:
-        data = json.load(fh)
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except IsADirectoryError:
+        raise IsADirectoryError(f"expected a file, got a directory: {path}")
+    except PermissionError:
+        raise PermissionError(f"permission denied reading: {path}")
+    except UnicodeDecodeError as exc:
+        raise UnicodeDecodeError(
+            exc.encoding, exc.object, exc.start, exc.end,
+            f"file is not valid UTF-8: {path}",
+        )
+    except json.JSONDecodeError as exc:
+        raise json.JSONDecodeError(
+            f"invalid JSON in advisory feed {path}: {exc.msg}", exc.doc, exc.pos
+        )
     if isinstance(data, dict) and isinstance(data.get("advisories"), list):
         data = data["advisories"]
     if not isinstance(data, list):
@@ -273,10 +313,12 @@ def _cmp_version(a: str, b: str) -> int:
 
 def _version_matches(version: str, constraint: str) -> bool:
     """Evaluate a single constraint like '<2.31.0', '>=1.0', '==2.5.0', '2.5.0'."""
+    if not isinstance(constraint, str):
+        return False
     constraint = constraint.strip()
     if not constraint:
         return False
-    if not version:
+    if not isinstance(version, str) or not version:
         return False
     op = "=="
     rest = constraint
@@ -357,7 +399,15 @@ def gate(findings: List[Finding], fail_on: str = "high") -> bool:
     """Return True if the pipeline should FAIL.
 
     Fails when any finding's severity is at or above `fail_on`.
+
+    Raises:
+        ValueError: if *fail_on* is not a recognised severity level.
     """
+    valid = {"critical", "high", "medium", "low"}
+    if fail_on not in valid:
+        raise ValueError(
+            f"invalid --fail-on value {fail_on!r}; must be one of: {', '.join(sorted(valid))}"
+        )
     threshold = _sev_rank(fail_on)
     for f in findings:
         if _sev_rank(f.severity) <= threshold:

@@ -162,11 +162,21 @@ def main(argv: Optional[List[str]] = None) -> int:
     try:
         return args.func(args)
     except FileNotFoundError as exc:
-        print(f"{TOOL_NAME}: file not found: {exc.filename}", file=sys.stderr)
+        _filename = exc.filename or str(exc)
+        print(f"{TOOL_NAME}: file not found: {_filename}", file=sys.stderr)
+        return 2
+    except IsADirectoryError as exc:
+        print(f"{TOOL_NAME}: {exc}", file=sys.stderr)
+        return 2
+    except PermissionError as exc:
+        print(f"{TOOL_NAME}: {exc}", file=sys.stderr)
         return 2
     except (ValueError, json.JSONDecodeError) as exc:
         print(f"{TOOL_NAME}: invalid input: {exc}", file=sys.stderr)
         return 2
+    except KeyboardInterrupt:
+        print(f"\n{TOOL_NAME}: interrupted", file=sys.stderr)
+        return 130
 
 
 if __name__ == "__main__":
