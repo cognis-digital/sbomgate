@@ -126,7 +126,85 @@ Continuous SBOM diff & vulnerability watch with maintainer-change tracking — w
 
 - ✅ Ports in Python, JavaScript, Go, and Rust (`ports/`)
 
+- ✅ Live threat-intel enrichment: CISA-KEV (known-exploited) + EPSS (exploit probability), edge/air-gap-ready
 
+
+
+<div align="right"><a href="#top">↑ back to top</a></div>
+
+
+
+<a name="threat-intel-feeds"></a>
+
+## Threat-intel feeds — CISA-KEV + EPSS enrichment (edge / air-gap)
+
+SBOMGATE ships a stdlib, **keyless** data-feed ingestion layer
+(`sbomgate/datafeeds.py` + the bundled `data_feeds_2026.json` catalog) and wires
+in the three feeds that genuinely sharpen an SBOM vulnerability gate:
+
+| feed | source | what it adds |
+|------|--------|--------------|
+| `cisa-kev` | [CISA Known Exploited Vulnerabilities](https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json) | the authoritative list of CVEs observed **actively exploited in the wild** — a drop-everything signal |
+| `epss` | [FIRST EPSS](https://api.first.org/data/v1/epss) | per-CVE **probability of exploitation in the next 30 days** (0..1) for risk-ranking |
+| `osv` | [OSV.dev](https://api.osv.dev/v1/query) | package@version → known vulns across PyPI/npm/Go/Maven/… |
+
+These are **real public sources**; no endpoints are invented. The feed layer is
+defensive / authorized-use only.
+
+### What the enrichment does
+
+`--enrich` folds KEV + EPSS into the vulnerability findings: any finding whose
+advisory id resolves to a CVE on the **CISA-KEV** list is escalated to
+`critical` and tagged `[KEV]`, and its **EPSS** score is attached
+(`[KEV EPSS=0.9750]`). A wall of undifferentiated "high" findings becomes a
+triage queue ordered by real-world exploitation likelihood.
+
+```bash
+# manage the feeds
+sbomgate feeds list                       # show the 3 relevant feeds + cache age
+sbomgate feeds update                      # fetch + cache cisa-kev, epss, osv
+sbomgate feeds get cisa-kev --offline      # print the cached feed
+
+# enrich a scan / vulns run
+sbomgate vulns sbom.json advisories.json --enrich
+sbomgate scan  new.json --advisories adv.json --enrich
+```
+
+Example (Log4Shell / Spring4Shell / Heartbleed are on CISA-KEV → escalated):
+
+```
+SEV  KIND           COMPONENT    DETAIL
+!!   vulnerability  log4j-core   [CVE-2021-44228] [KEV EPSS=0.9750] Log4Shell: JNDI lookup RCE
+!!   vulnerability  spring-core  [CVE-2022-22965] [KEV EPSS=0.9730] Spring4Shell RCE
+!!   vulnerability  openssl      [CVE-2014-0160]  [KEV EPSS=0.9440] Heartbleed
+!    vulnerability  requests     [GHSA-req-2015]  Credential leak (no CVE on KEV → stays high)
+```
+
+See `demos/11-feeds-kev-epss-enrichment/` (`run.sh` is fully offline).
+
+### Edge / air-gap (offline + snapshot)
+
+The feed cache lives at `$COGNIS_FEEDS_CACHE` (default `~/.cache/cognis-feeds`).
+`--offline` serves **only** the cache and never touches the network — so the
+gate keeps working on disconnected / military / edge gear:
+
+```bash
+sbomgate vulns sbom.json adv.json --enrich --offline
+```
+
+Sneakernet the feeds into a disconnected enclave:
+
+```bash
+# connected side — refresh + pack the cache
+sbomgate feeds update
+python -m sbomgate.datafeeds snapshot-export feeds.tar.gz
+
+#   …carry feeds.tar.gz across the air gap…
+
+# enclave side — rehydrate the cache, then run offline forever
+python -m sbomgate.datafeeds snapshot-import feeds.tar.gz
+sbomgate vulns sbom.json adv.json --enrich --offline
+```
 
 <div align="right"><a href="#top">↑ back to top</a></div>
 

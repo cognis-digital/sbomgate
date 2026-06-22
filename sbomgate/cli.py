@@ -82,6 +82,14 @@ def _emit(findings: List[Finding], diff: Optional[DiffResult], failed: bool, fmt
         _print_table(findings, diff, failed)
 
 
+def _maybe_enrich(args: argparse.Namespace, findings: List[Finding]) -> None:
+    """Fold CISA-KEV + EPSS into vulnerability findings when --enrich is set."""
+    if not getattr(args, "enrich", False):
+        return
+    from .feeds import enrich_findings
+    enrich_findings(findings, offline=getattr(args, "offline", False))
+
+
 def _run_scan(args: argparse.Namespace) -> int:
     new_comps = load_sbom(args.new)
     findings: List[Finding] = []
@@ -96,6 +104,7 @@ def _run_scan(args: argparse.Namespace) -> int:
         advisories = load_advisories(args.advisories)
         findings.extend(match_vulnerabilities(new_comps, advisories))
 
+    _maybe_enrich(args, findings)
     findings.sort(key=lambda f: (_sev_rank(f.severity), f.kind, f.component))
     failed = gate(findings, fail_on=args.fail_on)
     _emit(findings, diff, failed, args.format)
@@ -116,9 +125,23 @@ def _run_vulns(args: argparse.Namespace) -> int:
     comps = load_sbom(args.sbom)
     advisories = load_advisories(args.advisories)
     findings = match_vulnerabilities(comps, advisories)
+    _maybe_enrich(args, findings)
+    findings.sort(key=lambda f: (_sev_rank(f.severity), f.kind, f.component))
     failed = gate(findings, fail_on=args.fail_on)
     _emit(findings, None, failed, args.format)
     return 1 if failed else 0
+
+
+def _run_feeds(args: argparse.Namespace) -> int:
+    from . import feeds
+    action = getattr(args, "feeds_action", None)
+    if action == "list" or action is None:
+        return feeds.cli_list()
+    if action == "update":
+        return feeds.cli_update(args.ids)
+    if action == "get":
+        return feeds.cli_get(args.id, offline=args.offline)
+    return feeds.cli_list()
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -134,6 +157,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help="output format (default: table). 'sarif' emits SARIF 2.1.0 for code-scanning")
         sp.add_argument("--fail-on", choices=["critical", "high", "medium", "low"],
                         default="high", help="min severity that fails the gate (default: high)")
+        sp.add_argument("--enrich", action="store_true",
+                        help="enrich vuln findings with CISA-KEV (known-exploited) + EPSS scores")
+        sp.add_argument("--offline", action="store_true",
+                        help="air-gap mode: serve feed data from cache only, never hit the network")
 
     sub = p.add_subparsers(dest="command", metavar="<command>")
 
@@ -155,6 +182,23 @@ def build_parser() -> argparse.ArgumentParser:
     sp_vulns.add_argument("advisories", help="path to a local advisory feed JSON")
     add_common(sp_vulns)
     sp_vulns.set_defaults(func=_run_vulns)
+
+    # feeds: manage the bundled CISA-KEV / EPSS / OSV threat-intel feeds.
+    sp_feeds = sub.add_parser(
+        "feeds",
+        help="list/update/get the bundled CISA-KEV, EPSS and OSV feeds (edge/air-gap)",
+    )
+    feeds_sub = sp_feeds.add_subparsers(dest="feeds_action", metavar="<action>")
+    fl = feeds_sub.add_parser("list", help="list this tool's relevant feeds + cache age")
+    fl.set_defaults(func=_run_feeds)
+    fu = feeds_sub.add_parser("update", help="fetch + cache feeds (defaults to all relevant)")
+    fu.add_argument("ids", nargs="*", help="feed ids (cisa-kev epss osv); empty = all")
+    fu.set_defaults(func=_run_feeds)
+    fg = feeds_sub.add_parser("get", help="print a cached/fetched feed")
+    fg.add_argument("id", help="feed id: cisa-kev | epss | osv")
+    fg.add_argument("--offline", action="store_true", help="serve from cache only")
+    fg.set_defaults(func=_run_feeds)
+    sp_feeds.set_defaults(func=_run_feeds, feeds_action=None)
 
     return p
 

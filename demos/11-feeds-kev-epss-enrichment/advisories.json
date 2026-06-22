@@ -1,0 +1,12 @@
+{
+  "advisories": [
+    {"id": "CVE-2021-44228", "name": "log4j-core", "ecosystem": "maven", "severity": "high",
+     "affected": ["<2.15.0"], "summary": "Log4Shell: JNDI lookup RCE in Apache Log4j2"},
+    {"id": "CVE-2022-22965", "name": "spring-core", "ecosystem": "maven", "severity": "high",
+     "affected": ["<5.3.18"], "summary": "Spring4Shell: remote code execution via data binding"},
+    {"id": "CVE-2014-0160", "name": "openssl", "ecosystem": "generic", "severity": "high",
+     "affected": ["<1.0.1g"], "summary": "Heartbleed: memory disclosure in OpenSSL heartbeat"},
+    {"id": "GHSA-req-2015", "name": "requests", "ecosystem": "pypi", "severity": "high",
+     "affected": ["<2.20.0"], "summary": "Credential leak on cross-origin redirect (no CVE in KEV)"}
+  ]
+}
