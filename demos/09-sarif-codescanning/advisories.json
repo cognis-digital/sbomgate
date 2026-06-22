@@ -1,0 +1,31 @@
+{
+  "advisories": [
+    {
+      "id": "GHSA-3ww4-gg4f-jr7f",
+      "cve": "CVE-2023-50782",
+      "name": "cryptography",
+      "ecosystem": "pypi",
+      "severity": "high",
+      "affected": [">=3.1,<42.0.0"],
+      "summary": "Bleichenbacher timing oracle attack against RSA decryption (fixed in 42.0.0)"
+    },
+    {
+      "id": "GHSA-hrfv-mqp8-q5rw",
+      "cve": "CVE-2023-46136",
+      "name": "Werkzeug",
+      "ecosystem": "pypi",
+      "severity": "high",
+      "affected": ["<2.3.8"],
+      "summary": "Denial of service via crafted multipart form data (fixed in 2.3.8 / 3.0.1)"
+    },
+    {
+      "id": "GHSA-jjg7-2v4v-x38h",
+      "cve": "CVE-2024-3651",
+      "name": "idna",
+      "ecosystem": "pypi",
+      "severity": "medium",
+      "affected": ["<3.7"],
+      "summary": "Resource consumption when decoding crafted internationalized domain names (fixed in 3.7)"
+    }
+  ]
+}

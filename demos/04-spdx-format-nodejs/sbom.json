@@ -1,0 +1,40 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "web-frontend-build-1842",
+  "documentNamespace": "https://example.com/spdx/web-frontend-build-1842",
+  "creationInfo": {
+    "created": "2026-06-20T14:02:00Z",
+    "creators": ["Tool: syft-1.18.0"]
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-lodash",
+      "name": "lodash",
+      "versionInfo": "4.17.20",
+      "supplier": "Organization: lodash",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:npm/lodash@4.17.20"}
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-minimist",
+      "name": "minimist",
+      "versionInfo": "1.2.5",
+      "supplier": "Organization: substack",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:npm/minimist@1.2.5"}
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-express",
+      "name": "express",
+      "versionInfo": "4.19.2",
+      "supplier": "Organization: expressjs",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:npm/express@4.19.2"}
+      ]
+    }
+  ]
+}

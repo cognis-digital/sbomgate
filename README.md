@@ -46,7 +46,7 @@ sbomgate scan .            # → prioritized findings in seconds
 
 
 
-- [Why sbomgate?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
+- [Why sbomgate?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Demos](#demos) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
 
 
 
@@ -73,6 +73,11 @@ sbomgate scan .            # → prioritized findings in seconds
 4. **Read JSON output** and tune the gate with `--fail-on {critical,high,medium,low}`:
    ```bash
    sbomgate scan new-sbom.json --advisories advisories.json --format json | jq '.gate'
+   ```
+
+   Or emit **SARIF 2.1.0** for GitHub code-scanning / SIEMs:
+   ```bash
+   sbomgate scan new-sbom.json --advisories advisories.json --format sarif > sbomgate.sarif
    ```
 
 5. **Use in CI** — fail the build when a vuln or risky change crosses the threshold:
@@ -143,6 +148,8 @@ sbomgate scan .                       # scan current project
 
 sbomgate scan . --format json         # machine-readable
 
+sbomgate scan . --format sarif        # SARIF 2.1.0 for code-scanning
+
 sbomgate scan . --fail-on high        # CI gate (non-zero exit)
 
 ```
@@ -178,6 +185,38 @@ $ sbomgate scan .
 <div align="right"><a href="#top">↑ back to top</a></div>
 
 
+
+<a name="demos"></a>
+
+## Demos — real-use-case scenarios
+
+Every demo under [`demos/`](demos/) ships a `SCENARIO.md` plus SBOM/advisory
+fixtures **in sbomgate's real input format**, and each one is exercised by the
+test suite so the documented outcome stays true.
+
+| Demo | What it shows | Outcome |
+|---|---|---|
+| [`01-basic`](demos/01-basic/) | CI build between two CycloneDX SBOMs: downgrade + maintainer takeover + new critical dep | gate FAILs |
+| [`04-spdx-format-nodejs`](demos/04-spdx-format-nodejs/) | **SPDX 2.3** input from a Node.js build (lodash, minimist) | gate FAILs |
+| [`05-transitive-critical`](demos/05-transitive-critical/) | A **downgrade re-introduces** a fixed critical (PyYAML CVE-2020-14343) | gate FAILs |
+| [`06-clean-build-passes`](demos/06-clean-build-passes/) | Routine patch bumps, everything past its fix — the **negative control** | gate PASSes (exit 0) |
+| [`07-ecosystem-mismatch`](demos/07-ecosystem-mismatch/) | Same name on PyPI **and** npm — ecosystem-scoped, no false positive | gate FAILs (1) |
+| [`08-multi-ecosystem-monorepo`](demos/08-multi-ecosystem-monorepo/) | PyPI + npm + Maven + Go, Text4Shell + axios SSRF + maintainer change | gate FAILs |
+| [`09-sarif-codescanning`](demos/09-sarif-codescanning/) | **SARIF 2.1.0** export wired into GitHub code-scanning | gate FAILs |
+| [`10-version-range-and-gate`](demos/10-version-range-and-gate/) | `==` / `>=` / `<` / AND-range operator semantics + `--fail-on` tuning | gate FAILs |
+
+```bash
+# try one end to end:
+python -m sbomgate scan demos/05-transitive-critical/sbom-new.json \
+    --old demos/05-transitive-critical/sbom-old.json \
+    --advisories demos/05-transitive-critical/advisories.json
+```
+
+> All CVE/GHSA identifiers in the demos are **real, published** advisories
+> (except `10-version-range-and-gate`, which uses clearly-labelled synthetic
+> ids to document matcher semantics).
+
+<div align="right"><a href="#top">↑ back to top</a></div>
 
 <a name="architecture"></a>
 

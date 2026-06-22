@@ -19,6 +19,7 @@ from .core import (
     match_vulnerabilities,
     load_advisories,
     gate,
+    to_sarif,
     _sev_rank,
 )
 
@@ -57,7 +58,12 @@ def _print_table(findings: List[Finding], diff: Optional[DiffResult], failed: bo
 
 
 def _emit(findings: List[Finding], diff: Optional[DiffResult], failed: bool, fmt: str) -> None:
-    if fmt == "json":
+    if fmt == "sarif":
+        print(json.dumps(
+            to_sarif(findings, tool_name=TOOL_NAME, tool_version=TOOL_VERSION),
+            indent=2, sort_keys=True,
+        ))
+    elif fmt == "json":
         payload = {
             "tool": TOOL_NAME,
             "version": TOOL_VERSION,
@@ -124,8 +130,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--version", action="version", version=f"{TOOL_NAME} {TOOL_VERSION}")
 
     def add_common(sp: argparse.ArgumentParser) -> None:
-        sp.add_argument("--format", choices=["table", "json"], default="table",
-                        help="output format (default: table)")
+        sp.add_argument("--format", choices=["table", "json", "sarif"], default="table",
+                        help="output format (default: table). 'sarif' emits SARIF 2.1.0 for code-scanning")
         sp.add_argument("--fail-on", choices=["critical", "high", "medium", "low"],
                         default="high", help="min severity that fails the gate (default: high)")
 

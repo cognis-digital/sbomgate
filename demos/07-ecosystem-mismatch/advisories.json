@@ -1,0 +1,13 @@
+{
+  "advisories": [
+    {
+      "id": "GHSA-x84v-xcm2-53pg",
+      "cve": "CVE-2018-18074",
+      "name": "requests",
+      "ecosystem": "pypi",
+      "severity": "high",
+      "affected": ["<2.20.0"],
+      "summary": "Credentials leaked to a third party on cross-host redirect (PyPI requests, fixed in 2.20.0)"
+    }
+  ]
+}

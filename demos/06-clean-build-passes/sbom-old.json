@@ -1,0 +1,10 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "metadata": {"component": {"name": "billing-service", "version": "1.8.0"}},
+  "components": [
+    {"type": "library", "name": "requests", "version": "2.32.2", "purl": "pkg:pypi/requests@2.32.2", "publisher": "Python Software Foundation"},
+    {"type": "library", "name": "urllib3", "version": "2.2.2", "purl": "pkg:pypi/urllib3@2.2.2", "publisher": "urllib3 team"},
+    {"type": "library", "name": "certifi", "version": "2024.7.4", "purl": "pkg:pypi/certifi@2024.7.4", "publisher": "Kenneth Reitz"}
+  ]
+}

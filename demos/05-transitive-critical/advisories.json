@@ -1,0 +1,22 @@
+{
+  "advisories": [
+    {
+      "id": "GHSA-8q59-q68h-6hv4",
+      "cve": "CVE-2020-14343",
+      "name": "PyYAML",
+      "ecosystem": "pypi",
+      "severity": "critical",
+      "affected": ["<5.4"],
+      "summary": "Arbitrary code execution via full_load / FullLoader (fixed in 5.4)"
+    },
+    {
+      "id": "GHSA-g3rq-g295-4j3m",
+      "cve": "CVE-2020-28493",
+      "name": "Jinja2",
+      "ecosystem": "pypi",
+      "severity": "medium",
+      "affected": ["<2.11.3"],
+      "summary": "Regular-expression denial of service in the urlize filter (fixed in 2.11.3)"
+    }
+  ]
+}

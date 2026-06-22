@@ -1,0 +1,9 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "metadata": {"component": {"name": "polyglot-service", "version": "0.4.0"}},
+  "components": [
+    {"type": "library", "name": "requests", "version": "2.19.0", "purl": "pkg:pypi/requests@2.19.0", "publisher": "Python Software Foundation"},
+    {"type": "library", "name": "requests", "version": "2.88.2", "purl": "pkg:npm/requests@2.88.2", "publisher": "request team"}
+  ]
+}

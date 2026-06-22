@@ -363,3 +363,116 @@ def gate(findings: List[Finding], fail_on: str = "high") -> bool:
         if _sev_rank(f.severity) <= threshold:
             return True
     return False
+
+
+# --- SARIF 2.1.0 export -----------------------------------------------------
+
+# Map our severity vocabulary onto SARIF's `level` and the SARIF
+# `security-severity` numeric band (0.0-10.0) used by GitHub code-scanning.
+_SARIF_LEVEL = {
+    "critical": "error",
+    "high": "error",
+    "medium": "warning",
+    "low": "note",
+    "none": "note",
+    "unknown": "note",
+}
+_SARIF_SECURITY_SEVERITY = {
+    "critical": "9.5",
+    "high": "8.0",
+    "medium": "5.5",
+    "low": "3.0",
+    "none": "0.0",
+    "unknown": "0.0",
+}
+
+# Stable rule id per finding kind so code-scanning groups them sensibly.
+_SARIF_RULE = {
+    "vulnerability": ("SBOMGATE-VULN", "Vulnerable dependency"),
+    "maintainer-change": ("SBOMGATE-MAINTAINER", "Dependency maintainer changed"),
+    "version-change": ("SBOMGATE-VERSION", "Dependency version changed"),
+    "added": ("SBOMGATE-ADDED", "Dependency added"),
+    "removed": ("SBOMGATE-REMOVED", "Dependency removed"),
+}
+
+
+def _finding_message(f: Finding) -> str:
+    msg = f.detail or f"{f.kind}: {f.component}"
+    if f.advisory_id:
+        msg = f"[{f.advisory_id}] {msg}"
+    if f.old or f.new:
+        msg = f"{msg} ({f.old or '-'} -> {f.new or '-'})"
+    return msg
+
+
+def to_sarif(
+    findings: List[Finding],
+    tool_name: str = "sbomgate",
+    tool_version: str = "",
+    artifact_uri: str = "sbom.json",
+) -> Dict[str, Any]:
+    """Render findings as a SARIF 2.1.0 log object.
+
+    Each distinct finding *kind* becomes a SARIF rule; each finding becomes a
+    result tagged with the matching rule, a `level`, and a
+    `security-severity` property for GitHub code-scanning ingestion.
+    """
+    seen_rules: Dict[str, Dict[str, Any]] = {}
+    results: List[Dict[str, Any]] = []
+
+    for f in findings:
+        rule_id, rule_name = _SARIF_RULE.get(
+            f.kind, (f"SBOMGATE-{f.kind.upper()}", f.kind)
+        )
+        sev = (f.severity or "unknown").strip().lower()
+        if rule_id not in seen_rules:
+            seen_rules[rule_id] = {
+                "id": rule_id,
+                "name": rule_name.replace(" ", ""),
+                "shortDescription": {"text": rule_name},
+                "defaultConfiguration": {"level": _SARIF_LEVEL.get(sev, "note")},
+            }
+        result: Dict[str, Any] = {
+            "ruleId": rule_id,
+            "level": _SARIF_LEVEL.get(sev, "note"),
+            "message": {"text": _finding_message(f)},
+            "properties": {
+                "security-severity": _SARIF_SECURITY_SEVERITY.get(sev, "0.0"),
+                "kind": f.kind,
+                "component": f.component,
+                "severity": sev,
+            },
+            "locations": [{
+                "physicalLocation": {
+                    "artifactLocation": {"uri": artifact_uri},
+                    "logicalLocations": [{"name": f.component}],
+                },
+                "logicalLocations": [{
+                    "name": f.component,
+                    "kind": "module",
+                }],
+            }],
+        }
+        if f.advisory_id:
+            result["properties"]["advisory_id"] = f.advisory_id
+            result["partialFingerprints"] = {
+                "primary": f"{rule_id}:{f.component}:{f.advisory_id}"
+            }
+        results.append(result)
+
+    driver: Dict[str, Any] = {
+        "name": tool_name,
+        "informationUri": "https://github.com/cognis-digital/sbomgate",
+        "rules": list(seen_rules.values()),
+    }
+    if tool_version:
+        driver["version"] = tool_version
+
+    return {
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [{
+            "tool": {"driver": driver},
+            "results": results,
+        }],
+    }

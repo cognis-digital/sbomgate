@@ -1,0 +1,22 @@
+{
+  "advisories": [
+    {
+      "id": "GHSA-35jh-r3h4-6jhm",
+      "cve": "CVE-2021-23337",
+      "name": "lodash",
+      "ecosystem": "npm",
+      "severity": "high",
+      "affected": ["<4.17.21"],
+      "summary": "Command injection in lodash via template (fixed in 4.17.21)"
+    },
+    {
+      "id": "GHSA-xvch-5gv4-984h",
+      "cve": "CVE-2021-44906",
+      "name": "minimist",
+      "ecosystem": "npm",
+      "severity": "critical",
+      "affected": ["<1.2.6"],
+      "summary": "Prototype pollution in minimist (fixed in 1.2.6)"
+    }
+  ]
+}

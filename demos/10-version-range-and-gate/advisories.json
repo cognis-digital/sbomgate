@@ -1,0 +1,9 @@
+{
+  "advisories": [
+    {"id": "SBOMGATE-EXAMPLE-EQ",   "name": "alpha",   "ecosystem": "pypi", "severity": "critical", "affected": ["==2.5.0"],        "summary": "exact-pin match (== operator)"},
+    {"id": "SBOMGATE-EXAMPLE-AND",  "name": "bravo",   "ecosystem": "pypi", "severity": "high",     "affected": [">=1.0.0,<1.5.0"], "summary": "AND-joined range (>=1.0.0 AND <1.5.0)"},
+    {"id": "SBOMGATE-EXAMPLE-GE",   "name": "charlie", "ecosystem": "pypi", "severity": "medium",   "affected": [">=3.0.0"],        "summary": "lower-bound-inclusive (>= operator)"},
+    {"id": "SBOMGATE-EXAMPLE-LT",   "name": "delta",   "ecosystem": "pypi", "severity": "low",      "affected": ["<1.0.0"],         "summary": "upper-bound-exclusive (< operator)"},
+    {"id": "SBOMGATE-EXAMPLE-MISS", "name": "echo",    "ecosystem": "pypi", "severity": "critical", "affected": ["<5.0.0"],         "summary": "should NOT match: 5.0.0 is not < 5.0.0"}
+  ]
+}

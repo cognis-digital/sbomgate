@@ -1,0 +1,10 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "metadata": {"component": {"name": "data-pipeline", "version": "3.3.0"}},
+  "components": [
+    {"type": "library", "name": "PyYAML", "version": "5.3.1", "purl": "pkg:pypi/pyyaml@5.3.1", "publisher": "Kirill Simonov"},
+    {"type": "library", "name": "Jinja2", "version": "2.11.2", "purl": "pkg:pypi/jinja2@2.11.2", "publisher": "Pallets"},
+    {"type": "library", "name": "requests", "version": "2.32.3", "purl": "pkg:pypi/requests@2.32.3", "publisher": "Python Software Foundation"}
+  ]
+}

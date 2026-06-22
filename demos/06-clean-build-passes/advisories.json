@@ -1,0 +1,22 @@
+{
+  "advisories": [
+    {
+      "id": "GHSA-9wx4-h78v-vm56",
+      "cve": "CVE-2024-35195",
+      "name": "requests",
+      "ecosystem": "pypi",
+      "severity": "medium",
+      "affected": ["<2.32.0"],
+      "summary": "Session verify=False persists across requests (fixed in 2.32.0)"
+    },
+    {
+      "id": "GHSA-34jh-p97f-mpxf",
+      "cve": "CVE-2024-37891",
+      "name": "urllib3",
+      "ecosystem": "pypi",
+      "severity": "medium",
+      "affected": ["<2.2.2"],
+      "summary": "Proxy-Authorization not stripped on cross-origin redirect (fixed in 2.2.2)"
+    }
+  ]
+}
