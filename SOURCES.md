@@ -1,5 +1,15 @@
 # Sources
 
+## Bundled offline data
+
+- **OSV vulnerability DB** — `sbomgate/cognis_vulndb.jsonl.gz`, 262,351 real
+  vulnerabilities consolidated from [OSV.dev](https://osv.dev) (PyPI, npm, Go,
+  Maven, RubyGems, crates.io, NuGet). Read offline via `sbomgate.vulndb_local`
+  and `sbomgate db ...`. License: OSV records are CC-BY 4.0 / per-source.
+- **Keyless feed catalog** — `sbomgate/data_feeds_2026.json`, verified
+  read-only HTTPS endpoints used to refresh threat-intel on the edge (CISA-KEV,
+  FIRST EPSS, OSV query, NVD 2.0, GitHub GHSA). No API keys required.
+
 <!-- cognis-2026-live-sources -->
 
 ## Live 2026 sources (auto-expanded)

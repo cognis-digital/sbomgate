@@ -64,10 +64,12 @@ sbomgate scan .            # → prioritized findings in seconds
    sbomgate scan new-sbom.json --old old-sbom.json --advisories advisories.json
    ```
 
-3. **Run the focused subcommands** — `diff` two SBOMs, or `vulns`-match one:
+3. **Run the focused subcommands** — `diff` two SBOMs, `vulns`-match one, or
+   match against the **bundled offline DB** (no feed needed):
    ```bash
    sbomgate diff old-sbom.json new-sbom.json
    sbomgate vulns new-sbom.json advisories.json
+   sbomgate db match new-sbom.json            # offline 262k-record OSV match
    ```
 
 4. **Read JSON output** and tune the gate with `--fail-on {critical,high,medium,low}`:
@@ -110,21 +112,21 @@ Continuous SBOM diff & vulnerability watch with maintainer-change tracking — w
 
 
 
-- ✅ Parse Sbom
+- ✅ **Parse CycloneDX, SPDX, or native JSON SBOMs** — auto-detected, no flags
 
-- ✅ Load Sbom
+- ✅ **Diff two SBOMs** — flags `added` / `removed` / `version-change`, and **maintainer-change → `high`** (supply-chain takeover signal)
 
-- ✅ Diff Sboms
+- ✅ **Match an advisory feed** with real version-range semantics (`<`, `<=`, `==`, `>=`, `>`, AND-ranges), ecosystem-scoped to kill false positives
 
-- ✅ Load Advisories
+- ✅ **Bundled offline 262,351-record OSV vuln DB** — `sbomgate db match sbom.json` resolves real CVEs (e.g. Log4Shell) with **no feed and no network**
 
-- ✅ Match Vulnerabilities
+- ✅ **CI gate** — exit code `1` when a finding meets/exceeds `--fail-on` (default `high`)
 
-- ✅ Gate
+- ✅ **Output formats**: human `table`, machine `json`, and **SARIF 2.1.0** for GitHub code-scanning / SIEMs
 
 - ✅ Runs on Linux/macOS/Windows · Docker · devcontainer
 
-- ✅ Ports in Python, JavaScript, Go, and Rust (`ports/`)
+- ✅ Ports in Python, JavaScript, Go, and Rust (`ports/`) — each mirrors the SBOM-diff + gate core, CI-built on every push
 
 - ✅ Live threat-intel enrichment: CISA-KEV (known-exploited) + EPSS (exploit probability), edge/air-gap-ready
 
@@ -244,18 +246,46 @@ sbomgate scan . --fail-on high        # CI gate (non-zero exit)
 
 
 
+A real run of the bundled `01-basic` demo — a CI build that downgrades
+`requests`, re-introduces a critical, and shows a maintainer takeover:
+
 ```text
+$ sbomgate scan demos/01-basic/sbom-new.json \
+      --old demos/01-basic/sbom-old.json \
+      --advisories demos/01-basic/advisories.json
 
-$ sbomgate scan .
+SBOM diff: 4 -> 4 components
+  added=1  maintainer-change=1  removed=1  version-change=2
 
-  [HIGH    ] SBO-001  example finding             (./src/app.py)
+SEV  KIND              COMPONENT      DETAIL
+---- ----------------- -------------  ------------------------------
+!!   vulnerability     shady-logger   [GHSA-shady-0001] Remote code execution via log format string injection
+!    maintainer-change leftpad-utils  maintainer of leftpad-utils changed (possible takeover)
+!    vulnerability     requests       [GHSA-req-2015] Credential leak on cross-origin redirect in old requests releases
+.    added             shady-logger   new dependency shady-logger 0.0.7
+.    version-change    requests       requests 2.32.0 -> 2.5.0
+.    version-change    urllib3        urllib3 2.2.1 -> 2.2.2
+     removed           colorama       dependency colorama 0.4.6 removed
 
-  [MEDIUM  ] SBO-002  another signal              (./config.yaml)
+GATE: FAIL  (7 finding(s))
+$ echo $?
+1
+```
 
+Or match a Maven SBOM straight against the **bundled offline DB** — no
+advisory feed, no network:
 
-
-  2 findings · risk score 5 · 38ms
-
+```text
+$ sbomgate db match my-sbom.json       # my-sbom.json lists log4j-core 2.14.1
+SEV  KIND              COMPONENT   DETAIL
+---- ----------------- ----------  ------------------------------
+!!   vulnerability     log4j-core  [CVE-2017-5645]  Deserialization of Untrusted Data in Log4j
+!!   vulnerability     log4j-core  [CVE-2021-44228] Remote code injection in Log4j
+!!   vulnerability     log4j-core  [CVE-2021-44832] Improper Input Validation and Injection in Apache Log4j2
+!!   vulnerability     log4j-core  [CVE-2021-45046] Incomplete fix for Apache Log4j vulnerability
+~    vulnerability     log4j-core  [CVE-2020-9488]  Improper validation of certificate with host mismatch ...
+...
+GATE: FAIL  (11 finding(s))
 ```
 
 
@@ -483,6 +513,72 @@ Source-available under the **Cognis Open Collaboration License (COCL) v1.0** —
 <div align="center"><sub><b><a href="https://cognis.digital">Cognis Digital</a></b> · one of 170+ tools in the <a href="https://github.com/cognis-digital/cognis-neural-suite">Cognis Neural Suite</a> · <i>Making Tomorrow Better Today</i></sub></div>
 
 
-## Bundled vulnerability database
+## Bundled offline vulnerability database
 
-Ships `sbomgate/cognis_vulndb.jsonl.gz` — **262,351 real vulnerabilities** (OSV: PyPI/npm/Go/Maven/RubyGems/crates.io/NuGet) with detailed metadata (CVE/GHSA aliases, ecosystem, severity/CVSS, affected packages, dates). Pure-stdlib offline loader `vulndb_local.VulnDB` (`count`/`by_cve`/`by_package`/`search`), air-gap ready. Refresh/extend via `datafeeds.py bulk`.
+<a name="bundled-db"></a>
+
+sbomgate ships `sbomgate/cognis_vulndb.jsonl.gz` — **262,351 real vulnerabilities**
+sourced from [OSV.dev](https://osv.dev) across PyPI / npm / Go / Maven /
+RubyGems / crates.io / NuGet, with full metadata per record (CVE/GHSA aliases,
+ecosystem, CVSS severity, affected packages, published/modified dates). It is a
+pure-stdlib gzip; the loader (`sbomgate/vulndb_local.py`) opens it lazily and
+indexes by CVE and by package — **no network, no API key, no service to stand up.**
+
+The DB is wired straight into the CLI via the `db` subcommand and the
+`--match-db` flag, so the gate works the moment you clone the repo:
+
+```bash
+sbomgate db count                          # 262351 vulnerabilities in the bundled offline DB
+sbomgate db cve CVE-2021-44228             # full record(s) for Log4Shell (GHSA-jfh8-c2jp-5v3q)
+sbomgate db package log4j-core             # every advisory affecting log4j-core
+sbomgate db search "deserialization"       # substring search over summaries
+sbomgate db match my-sbom.json             # match a whole SBOM, gate on the result (offline)
+
+# fold the offline DB into a normal scan / vulns run:
+sbomgate scan  new.json --old old.json --match-db
+sbomgate vulns my-sbom.json --match-db     # no advisory feed required
+```
+
+Matching is **ecosystem-scoped** and resolves short artifact names against full
+coordinates — so an SBOM component named `log4j-core` correctly matches the OSV
+record for `org.apache.logging.log4j:log4j-core`. Combine `--match-db` with
+`--enrich --offline` to also tag the cached CISA-KEV / EPSS signal.
+
+### Refreshing the corpus on the edge (NVD / OSV / GHSA)
+
+The bundled DB is the offline *baseline*. To extend it on a connected box and
+sneakernet the result into an air-gapped enclave, use the keyless harvester in
+`sbomgate/datafeeds.py` (every endpoint comes from the verified, keyless
+[`data_feeds_2026.json`](sbomgate/data_feeds_2026.json) catalog):
+
+```bash
+# connected side — paginate NVD 2.0 (or GitHub GHSA) into the feed cache
+python -m sbomgate.datafeeds bulk nvd-cve --max 50000
+python -m sbomgate.datafeeds snapshot-export feeds.tar.gz
+
+#   …carry feeds.tar.gz across the air gap…
+
+# enclave side — rehydrate, then run the gate offline forever
+python -m sbomgate.datafeeds snapshot-import feeds.tar.gz
+sbomgate vulns my-sbom.json --match-db --enrich --offline
+```
+
+Everything here is **passive and offline** — sbomgate reads files and a local
+gzip; it never scans a host or opens a socket against a target. See the
+[Scope & safety](#scope) note below.
+
+<a name="scope"></a>
+
+## Scope, authorization & safety
+
+sbomgate is a **defensive, passive, authorized-use** tool. It parses SBOM/advisory
+JSON you already have and matches it against a local database. It performs **no
+active scanning** — no host probing, no exploitation, no network reconnaissance —
+and the threat-intel feed layer only ever fetches from public, keyless,
+read-only data sources (or serves from cache with `--offline`). All CVE/GHSA
+identifiers in the bundled DB and demos are **real, published advisories** (the
+sole exception is `demos/10-version-range-and-gate`, whose ids are clearly
+labelled synthetic to document matcher semantics). Use it only on SBOMs and
+systems you are authorized to assess.
+
+<div align="right"><a href="#top">↑ back to top</a></div>

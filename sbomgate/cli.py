@@ -90,6 +90,17 @@ def _maybe_enrich(args: argparse.Namespace, findings: List[Finding]) -> None:
     enrich_findings(findings, offline=getattr(args, "offline", False))
 
 
+def _maybe_match_db(args: argparse.Namespace, comps, findings: List[Finding]) -> None:
+    """Match components against the bundled 262k-record offline OSV DB.
+
+    Enabled with --match-db. Fully offline; no network, no advisory feed needed.
+    """
+    if not getattr(args, "match_db", False):
+        return
+    from .vulnmatch import match_against_db
+    findings.extend(match_against_db(comps))
+
+
 def _run_scan(args: argparse.Namespace) -> int:
     new_comps = load_sbom(args.new)
     findings: List[Finding] = []
@@ -104,6 +115,7 @@ def _run_scan(args: argparse.Namespace) -> int:
         advisories = load_advisories(args.advisories)
         findings.extend(match_vulnerabilities(new_comps, advisories))
 
+    _maybe_match_db(args, new_comps, findings)
     _maybe_enrich(args, findings)
     findings.sort(key=lambda f: (_sev_rank(f.severity), f.kind, f.component))
     failed = gate(findings, fail_on=args.fail_on)
@@ -123,8 +135,11 @@ def _run_diff(args: argparse.Namespace) -> int:
 
 def _run_vulns(args: argparse.Namespace) -> int:
     comps = load_sbom(args.sbom)
-    advisories = load_advisories(args.advisories)
-    findings = match_vulnerabilities(comps, advisories)
+    findings: List[Finding] = []
+    if args.advisories:
+        advisories = load_advisories(args.advisories)
+        findings.extend(match_vulnerabilities(comps, advisories))
+    _maybe_match_db(args, comps, findings)
     _maybe_enrich(args, findings)
     findings.sort(key=lambda f: (_sev_rank(f.severity), f.kind, f.component))
     failed = gate(findings, fail_on=args.fail_on)
@@ -144,6 +159,55 @@ def _run_feeds(args: argparse.Namespace) -> int:
     return feeds.cli_list()
 
 
+def _run_db(args: argparse.Namespace) -> int:
+    """Query / match against the bundled offline OSV vuln DB."""
+    from .vulndb_local import VulnDB
+    from .vulnmatch import match_against_db
+    db = VulnDB()
+    action = getattr(args, "db_action", None)
+
+    if action == "count" or action is None:
+        print(f"{db.count()} vulnerabilities in the bundled offline DB")
+        return 0
+
+    if action == "cve":
+        recs = db.by_cve(args.id)
+        print(json.dumps(recs, indent=2, sort_keys=True))
+        return 0 if recs else 1
+
+    if action == "package":
+        eco = getattr(args, "ecosystem", None)
+        recs = db.by_package(args.name, ecosystem=eco)
+        if not recs:
+            # Fall back to the short-artifact index (handles Maven group ids,
+            # Go module paths, etc.) so "log4j-core" resolves to the full
+            # "org.apache.logging.log4j:log4j-core" coordinate.
+            from .core import Component
+            from .vulnmatch import match_against_db
+            findings = match_against_db([Component(name=args.name, ecosystem=eco or "")])
+            ids = [f.advisory_id for f in findings]
+            recs = [r for r in db.load() if (r.get("id") in ids) or
+                    any(a in ids for a in (r.get("aliases") or []))]
+        print(json.dumps(recs, indent=2, sort_keys=True))
+        return 0 if recs else 1
+
+    if action == "search":
+        recs = db.search(args.text, limit=getattr(args, "limit", 50))
+        print(json.dumps(recs, indent=2, sort_keys=True))
+        return 0 if recs else 1
+
+    if action == "match":
+        comps = load_sbom(args.sbom)
+        findings = match_against_db(comps)
+        findings.sort(key=lambda f: (_sev_rank(f.severity), f.kind, f.component))
+        failed = gate(findings, fail_on=args.fail_on)
+        _emit(findings, None, failed, args.format)
+        return 1 if failed else 0
+
+    print(f"{db.count()} vulnerabilities in the bundled offline DB")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog=TOOL_NAME,
@@ -161,6 +225,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="enrich vuln findings with CISA-KEV (known-exploited) + EPSS scores")
         sp.add_argument("--offline", action="store_true",
                         help="air-gap mode: serve feed data from cache only, never hit the network")
+        sp.add_argument("--match-db", action="store_true",
+                        help="match components against the bundled offline 262k-record OSV vuln DB (no feed/network needed)")
 
     sub = p.add_subparsers(dest="command", metavar="<command>")
 
@@ -177,11 +243,38 @@ def build_parser() -> argparse.ArgumentParser:
     add_common(sp_diff)
     sp_diff.set_defaults(func=_run_diff)
 
-    sp_vulns = sub.add_parser("vulns", help="match one SBOM against a local advisory feed")
+    sp_vulns = sub.add_parser("vulns", help="match one SBOM against a local advisory feed and/or the bundled DB")
     sp_vulns.add_argument("sbom", help="path to the SBOM JSON")
-    sp_vulns.add_argument("advisories", help="path to a local advisory feed JSON")
+    sp_vulns.add_argument("advisories", nargs="?", default=None,
+                          help="path to a local advisory feed JSON (optional when --match-db is set)")
     add_common(sp_vulns)
     sp_vulns.set_defaults(func=_run_vulns)
+
+    # db: query / match against the bundled offline 262k-record OSV vuln DB.
+    sp_db = sub.add_parser(
+        "db",
+        help="query the bundled offline OSV vuln DB (count/cve/package/search/match)",
+    )
+    db_sub = sp_db.add_subparsers(dest="db_action", metavar="<action>")
+    dc = db_sub.add_parser("count", help="print how many vulns are bundled")
+    dc.set_defaults(func=_run_db)
+    dv = db_sub.add_parser("cve", help="look up a CVE/GHSA/OSV id")
+    dv.add_argument("id", help="e.g. CVE-2021-44228")
+    dv.set_defaults(func=_run_db)
+    dp = db_sub.add_parser("package", help="look up vulns affecting a package")
+    dp.add_argument("name", help="package name, e.g. log4j-core")
+    dp.add_argument("--ecosystem", help="scope to an ecosystem (Maven/npm/PyPI/...)")
+    dp.set_defaults(func=_run_db)
+    ds = db_sub.add_parser("search", help="substring search over vuln summaries")
+    ds.add_argument("text", help="text to search for")
+    ds.add_argument("--limit", type=int, default=50, help="max results (default 50)")
+    ds.set_defaults(func=_run_db)
+    dm = db_sub.add_parser("match", help="match an SBOM against the bundled DB (offline)")
+    dm.add_argument("sbom", help="path to the SBOM JSON")
+    dm.add_argument("--format", choices=["table", "json", "sarif"], default="table")
+    dm.add_argument("--fail-on", choices=["critical", "high", "medium", "low"], default="high")
+    dm.set_defaults(func=_run_db)
+    sp_db.set_defaults(func=_run_db, db_action=None)
 
     # feeds: manage the bundled CISA-KEV / EPSS / OSV threat-intel feeds.
     sp_feeds = sub.add_parser(

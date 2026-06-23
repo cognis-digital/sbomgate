@@ -15,7 +15,26 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field, asdict
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+# --- tool identity ----------------------------------------------------------
+TOOL_NAME = "sbomgate"
+
+
+def _read_version() -> str:
+    """Read the canonical version from the repo-root VERSION file, if present."""
+    try:
+        vf = Path(__file__).resolve().parent.parent / "VERSION"
+        v = vf.read_text(encoding="utf-8").strip()
+        if v:
+            return v
+    except Exception:  # pragma: no cover - packaging without VERSION file
+        pass
+    return "0.1.4"
+
+
+TOOL_VERSION = _read_version()
 
 # Highest severity first. Lower index == more severe.
 SEVERITY_ORDER = ["critical", "high", "medium", "low", "none", "unknown"]

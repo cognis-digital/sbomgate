@@ -1,0 +1,10 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "components": [
+    {"name": "requests", "version": "2.32.0", "purl": "pkg:pypi/requests@2.32.0", "type": "library"},
+    {"name": "urllib3", "version": "2.2.1", "purl": "pkg:pypi/urllib3@2.2.1", "type": "library"},
+    {"name": "colorama", "version": "0.4.6", "purl": "pkg:pypi/colorama@0.4.6", "type": "library"},
+    {"name": "leftpad-utils", "version": "1.0.0", "purl": "pkg:npm/leftpad-utils@1.0.0", "type": "library", "publisher": "acme-security"}
+  ]
+}

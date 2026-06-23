@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cognis-sbomgate"
-version = "0.1.1"
+version = "0.1.4"
 description = "Continuous SBOM diff & vulnerability watch with maintainer-change tracking"
 authors = [{name = "Cognis Digital", email = "suite@cognis.digital"}]
 license = {text = "LicenseRef-COCL-1.0"}
@@ -36,6 +36,12 @@ sbomgate = "sbomgate.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["sbomgate"]
+# Ship the bundled offline OSV DB + keyless feed catalog inside the wheel so the
+# `db` subcommand works the moment the package is installed (air-gap ready).
+artifacts = [
+    "sbomgate/cognis_vulndb.jsonl.gz",
+    "sbomgate/data_feeds_2026.json",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true
