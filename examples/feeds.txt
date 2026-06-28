@@ -1,0 +1,8 @@
+$ sbomgate-emit feeds
+
+cisa-kev   vuln   [138.6h old]  CISA Known Exploited Vulnerabilities
+             https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+  epss       vuln   [  uncached]  FIRST EPSS exploit-probability scores
+             https://api.first.org/data/v1/epss
+  osv        vuln   [  uncached]  OSV.dev vulnerability query
+             https://api.osv.dev/v1/query

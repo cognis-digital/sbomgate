@@ -1,0 +1,22 @@
+$ sbomgate-emit --help
+
+usage: sbomgate [-h] [--version] <command> ...
+
+Continuous SBOM diff & vulnerability watch with maintainer-change tracking.
+
+positional arguments:
+  <command>
+    scan      diff two SBOMs and/or match vulnerabilities, then gate
+    diff      diff two SBOMs (added/removed/version/maintainer)
+    vulns     match one SBOM against a local advisory feed and/or the bundled
+              DB
+    db        query the bundled offline OSV vuln DB
+              (count/cve/package/search/match)
+    feeds     list/update/get the bundled CISA-KEV, EPSS and OSV feeds
+              (edge/air-gap)
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+
+Exit code 1 when the gate fails (a finding meets/exceeds --fail-on severity).

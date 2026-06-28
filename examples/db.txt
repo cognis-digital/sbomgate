@@ -1,0 +1,3 @@
+$ sbomgate-emit db
+
+262351 vulnerabilities in the bundled offline DB

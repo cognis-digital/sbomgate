@@ -42,6 +42,60 @@ sbomgate scan .            # → prioritized findings in seconds
 
 
 
+
+<!-- cognis:example:start -->
+## 🔎 Example output
+
+Real, reproducible output from the tool — runs offline:
+
+```console
+$ sbomgate-emit --version
+sbomgate 0.1.4
+```
+
+```console
+$ sbomgate-emit --help
+usage: sbomgate [-h] [--version] <command> ...
+
+Continuous SBOM diff & vulnerability watch with maintainer-change tracking.
+
+positional arguments:
+  <command>
+    scan      diff two SBOMs and/or match vulnerabilities, then gate
+    diff      diff two SBOMs (added/removed/version/maintainer)
+    vulns     match one SBOM against a local advisory feed and/or the bundled
+              DB
+    db        query the bundled offline OSV vuln DB
+              (count/cve/package/search/match)
+    feeds     list/update/get the bundled CISA-KEV, EPSS and OSV feeds
+              (edge/air-gap)
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+
+Exit code 1 when the gate fails (a finding meets/exceeds --fail-on severity).
+```
+
+```console
+$ sbomgate-emit db
+262351 vulnerabilities in the bundled offline DB
+```
+
+```console
+$ sbomgate-emit feeds
+cisa-kev   vuln   [138.6h old]  CISA Known Exploited Vulnerabilities
+             https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+  epss       vuln   [  uncached]  FIRST EPSS exploit-probability scores
+             https://api.first.org/data/v1/epss
+  osv        vuln   [  uncached]  OSV.dev vulnerability query
+             https://api.osv.dev/v1/query
+```
+
+> Blocks above are real `sbomgate` output — reproduce them from a clone.
+
+<!-- cognis:example:end -->
+
 ## Contents
 
 

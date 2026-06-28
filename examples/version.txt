@@ -1,0 +1,3 @@
+$ sbomgate-emit --version
+
+sbomgate 0.1.4
