@@ -1,0 +1,17 @@
+[2026-07-21 05:49:22] === enhance · sbomgate · words=120000 loc>=10000 langs=9 push=True ===
+[2026-07-21 05:49:27] phase DOCS — longform 120000-word corpus -> docs/corpus/
+[2026-07-21 14:07:13] phase POLYGLOT — expanding to >= 10000 LOC across 9 languages
+[2026-07-21 14:07:41]   facets: ['sbom_parser', 'dependency_graph_builder', 'diff_engine', 'vulnerability_matcher', 'maintainer_tracker', 'alert_notifier']
+[2026-07-21 14:08:56]   +polyglot/python/sbom_parser.py  (loc now ~4251)
+[2026-07-21 14:10:51]   +polyglot/go/sbom_parser.go  (loc now ~4713)
+[2026-07-21 14:12:45]   +polyglot/rust/sbom_parser.rs  (loc now ~5195)
+[2026-07-21 14:14:51]   +polyglot/typescript/sbom_parser.ts  (loc now ~5706)
+[2026-07-21 14:16:45]   +polyglot/c/sbom_parser.c  (loc now ~6136)
+[2026-07-21 14:18:54]   +polyglot/cpp/sbom_parser.cpp  (loc now ~6607)
+[2026-07-21 14:20:49]   +polyglot/java/sbom_parser.java  (loc now ~7009)
+[2026-07-21 14:22:44]   +polyglot/ruby/sbom_parser.rb  (loc now ~7497)
+[2026-07-21 14:24:48]   +polyglot/csharp/sbom_parser.cs  (loc now ~7934)
+[2026-07-21 14:26:44]   +polyglot/python/dependency_graph_builder.py  (loc now ~8478)
+[2026-07-21 14:28:51]   +polyglot/go/dependency_graph_builder.go  (loc now ~9021)
+[2026-07-21 14:30:45]   +polyglot/rust/dependency_graph_builder.rs  (loc now ~9519)
+[2026-07-21 14:32:40]   +polyglot/typescript/dependency_graph_builder.ts  (loc now ~10042)
