@@ -15,3 +15,8 @@
 [2026-07-21 14:28:51]   +polyglot/go/dependency_graph_builder.go  (loc now ~9021)
 [2026-07-21 14:30:45]   +polyglot/rust/dependency_graph_builder.rs  (loc now ~9519)
 [2026-07-21 14:32:40]   +polyglot/typescript/dependency_graph_builder.ts  (loc now ~10042)
+[2026-07-21 14:32:43] === done · sbomgate · loc=10042 · {'committed': True, 'pushed': True, 'push_err': ''} ===
+[2026-09-10 16:41:10] === enhance · sbomgate · words=120000 loc>=10000 langs=9 push=True ===
+[2026-09-10 16:41:15] phase DOCS — longform 120000-word corpus -> docs/corpus/
+[2026-09-10 22:40:54] phase POLYGLOT — expanding to >= 10000 LOC across 9 languages
+[2026-09-10 22:41:13]   facets: ['sbom_parser_normalizer', 'sbom_diff_engine', 'vuln_db_connector', 'vuln_matcher', 'maintainer_change_tracker', 'alert_report_generator']
